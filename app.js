@@ -83,17 +83,20 @@ cl(freeTrip.toString());
 
 class TripService {
     constructor() {
-        // TODO Set of 3 trips
-        //
-        // new Trip('paris', 'Paris', 'img/paris.jpg')
-        // new Trip('nantes', 'Nantes', 'img/nantes.jpg')
-        // new Trip('rio-de-janeiro', 'Rio de Janeiro', 'img/rio-de-janeiro.jpg')
+        //Set of 3 trips
+        this.setCity = new Set([new Trip('paris', 'Paris', 'img/paris.jpg'), new Trip('nantes', 'Nantes', 'img/nantes.jpg'), new Trip('rio-de-janeiro', 'Rio de Janeiro', 'img/rio-de-janeiro.jpg')]);
     }
     findByName(tripName) {
         return new Promise((resolve, reject) => {
             setTimeout( () => {
-        // ici l'exécution du code est asynchrone
-        // TODO utiliser resolve et reject en fonction du résultat de la recherche
+                // ici l'exécution du code est asynchrone
+                // On utiliser resolve et reject en fonction du résultat de la recherche
+                for (const t of this.setCity) {
+                    if (t.name === tripName) {
+                        resolve(t);
+                    }
+                }
+                reject('No trip with name ' +tripName);
             }, 2000)
         });
     }
@@ -101,18 +104,41 @@ class TripService {
 
 class PriceService {
     constructor() {
-    // TODO Map of 2 trips
+    // Map of 2 trips
     // 'paris' --> price == 100
     // 'rio-de-janeiro' --> price == 800)
     // no price for 'nantes'
+    this.map = new Map();
+    this.map.set('paris', 100);
+    this.map.set('rio-de-janeiro', 800);
     }
     findPriceByTripId(tripId) {
             return new Promise((resolve, reject) => {
                 setTimeout( () => {
                 // ici l'exécution du code est asynchrone
-                // TODO utiliser resolve et reject en fonction du résultat de la recherche
+                // utiliser resolve et reject en fonction du résultat de la recherche
+                 if (this.map.has(tripId)) {
+                    resolve('Price found :' +this.map.get(tripId));
+                } else {
+                    reject('no price found for id ' +tripId);
+                }
+                this.map.get(tripId)
                 }, 2000)
         });
     }
 }
+
+const tripService = new TripService();
+const priceService = new PriceService();
+
+tripService.findByName('Paris').then(t => console.log(t), error => console.log(error));
+tripService.findByName('Toulouse').then(t => console.log(t), error => console.log(error));
     
+// Chainer l’utilisation des services
+tripService.findByName('Rio de Janeiro')
+    .then(t => priceService.findPriceByTripId(t.id)
+    .then(price => console.log(price), error => console.log(error)), error => console.log(error));
+tripService.findByName('Nantes')
+    .then(t => priceService.findPriceByTripId(t.id)
+    .then(price => console.log(price), error => console.log(error))
+    , error => console.log(error));
